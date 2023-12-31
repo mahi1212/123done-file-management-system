@@ -1,3 +1,8 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* apply same font */
+body {
+  font-family: 'Poppins', sans-serif;
+}
