@@ -7,11 +7,14 @@ import Home from "../pages/Home/Home";
 import Signup from "../pages/Signup/Signup";
 import Signin from "../pages/Signin/Signin";
 import Profile from "../pages/Profile/Profile";
+import PrivateRoute from "./PrivateRoutes";
+import Test from "../pages/Test/Test";
+import AdminRoutes from "./AdminRoutes";
 
 export const routes = createBrowserRouter([
     {
         path: "/",
-        element: <RootLayout />,
+        element: <PrivateRoute><RootLayout /></PrivateRoute>,
         children: [
             {
                 path: "/",
@@ -25,6 +28,10 @@ export const routes = createBrowserRouter([
                 path: "/profile",
                 element: <Profile />,
             },
+            {
+                path: "/test",
+                element: <AdminRoutes><Test /></AdminRoutes>,
+            }
         ]
     },
     {

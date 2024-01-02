@@ -14,7 +14,10 @@ const Sidebar = () => {
             <NavLink to='/profile' activeClassName='text-[#F9A826]'>
                 profile
             </NavLink>
-
+            <br />
+            <NavLink to='/test' activeClassName='text-[#F9A826]'>
+                Test
+            </NavLink>
         </div>
     )
 }

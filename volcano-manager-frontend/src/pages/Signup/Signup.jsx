@@ -58,7 +58,7 @@ const Signup = () => {
           name: formData.name,
           email: formData.email,
           password: formData.password,
-          role: formData.type
+          role: formData.role
         }
       })
     })
@@ -66,7 +66,13 @@ const Signup = () => {
       .then(data => {
         // console.log(data);
         if (data.status == 200) {
-          setUser(data)
+          setUser({
+            _id: data._id,
+            name: formData.name,
+            email: formData.email,
+            jwt: data.jwt,
+            role: 'user',
+          })
           navigate('/home')
         } else {
           alert('Something went wrong');

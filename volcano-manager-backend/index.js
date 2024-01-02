@@ -97,13 +97,13 @@ async function run() {
                 console.log(result)
                 // Generate and send JWT token in the response
                 const token = generateToken({ userId: result.insertedId });
+                // get the user data
                 res.json({
                     status: 200,
                     _id: result._id,
-                    name: result.name,
-                    email: result.email,
                     jwt: token
                 });
+
             } catch (err) {
                 res.json({
                     status: 500,
@@ -112,7 +112,47 @@ async function run() {
             }
         });
 
+        // login user
+        app.post('/login', async (req, res) => {
+            const { email, password } = req.body;
+            const query = { email: email };
+            try {
+                const user = await usersCollection.findOne(query);
 
+                if (!user) {
+                    return res.json({
+                        status: 404,
+                        message: "User does not exist with this email"
+                    });
+                }
+
+                // Compare the provided password with the hashed password
+                const isPasswordValid = await bcrypt.compare(password, user.password);
+
+                if (!isPasswordValid) {
+                    return res.json({
+                        status: 401,
+                        message: "Incorrect password"
+                    });
+                }
+
+                // Password is valid, generate and send JWT token in the response
+                const token = generateToken({ userId: user._id });
+                res.json({
+                    status: 200,
+                    _id: user._id,
+                    jwt: token,
+                    name: user.name,
+                    email: user.email,
+                    role: user.role
+                });
+            } catch (err) {
+                res.json({
+                    status: 500,
+                    message: "Internal Server Error"
+                });
+            }
+        });
         // update password
         app.put('/reset-password', async (req, res) => {
             const { data } = req.body;
@@ -153,47 +193,6 @@ async function run() {
 
             invalidatedTokens.add(token);
             res.json({ message: 'Token invalidated' });
-        });
-
-        // login user
-        app.post('/login', async (req, res) => {
-            const { email, password } = req.body;
-            const query = { email: email };
-            try {
-                const user = await usersCollection.findOne(query);
-
-                if (!user) {
-                    return res.json({
-                        status: 404,
-                        message: "User does not exist with this email"
-                    });
-                }
-
-                // Compare the provided password with the hashed password
-                const isPasswordValid = await bcrypt.compare(password, user.password);
-
-                if (!isPasswordValid) {
-                    return res.json({
-                        status: 401,
-                        message: "Incorrect password"
-                    });
-                }
-
-                // Password is valid, generate and send JWT token in the response
-                const token = generateToken({ userId: user._id }); 
-                res.json({
-                    status: 200,
-                    _id: user._id,
-                    name: user.name,
-                    email: user.email,
-                    jwt: token
-                });
-            } catch (err) {
-                res.json({
-                    status: 500,
-                    message: "Internal Server Error"
-                });
-            }
         });
 
         // get all users

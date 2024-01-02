@@ -1,9 +1,18 @@
-import React from 'react'
+import { useAtom } from "jotai";
+import React, { useContext } from "react";
+import { Navigate, useLocation } from "react-router";
+import { userAtom } from "../lib/jotai";
 
-const PrivateRoutes = () => {
-  return (
-    <div>PrivateRoutes</div>
-  )
-}
+const PrivateRoute = ({ children }) => {
+  const user = useAtom(userAtom);
+  // console.log(user, 'user')
+  const location = useLocation();
 
-export default PrivateRoutes
+  if (user[0]?.role == 'user' || user[0]?.role == 'admin') {
+    return children;
+  }
+
+  return <Navigate to="/signin" state={{ from: location }} replace />;
+};
+
+export default PrivateRoute;
