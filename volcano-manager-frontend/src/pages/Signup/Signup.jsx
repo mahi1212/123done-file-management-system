@@ -13,6 +13,7 @@ const Signup = () => {
         <TextField label='Name' type='text' name='name' placeholder="Enter name" />
         <TextField label='Email' type='email' name='email' placeholder="Enter email" />
         <TextField label='Password' type='password' name='password' placeholder="Enter password" />
+        <TextField label='Confirm Password' type='password' name='confirm_password' placeholder="Re-type password" />
         <div className='flex justify-between items-center w-[358px] mt-4 text-[12px]'>
           {/* remeber me checkbox */}
           <div className='flex items-center'>
