@@ -10,6 +10,7 @@ import Profile from "../pages/Profile/Profile";
 import PrivateRoute from "./PrivateRoutes";
 import Test from "../pages/Test/Test";
 import AdminRoutes from "./AdminRoutes";
+import ResetPassword from "../pages/ResetPassword/ResetPassword";
 
 export const routes = createBrowserRouter([
     {
@@ -41,5 +42,9 @@ export const routes = createBrowserRouter([
     {
         path: "/signin",
         element: <Signin />,
+    },
+    {
+        path: "/reset-password",
+        element: <ResetPassword />,
     }
 ])

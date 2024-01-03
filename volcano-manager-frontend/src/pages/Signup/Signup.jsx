@@ -97,7 +97,7 @@ const Signup = () => {
             <label htmlFor="remember-me" className='ml-[6px] text-slate-500'>Remember me</label>
           </div>
           {/* forgot password */}
-          <p className='text-slate-500 text-[#4C22C5] text-bolder'>Forgot your password?</p>
+          {/* <p className='text-slate-500 text-[#4C22C5] text-bolder'>Forgot your password?</p> no need in signup */}
         </div>
       </form>
       {/* buttons */}

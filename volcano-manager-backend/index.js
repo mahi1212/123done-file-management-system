@@ -66,6 +66,7 @@ async function run() {
         // await client.connect();
         const database = client.db('volcano');
         const usersCollection = database.collection('users');
+        const otpCollection = database.collection('otp');
         // Number of salt rounds for bcrypt hashing
         const saltRounds = 10;
 
@@ -128,6 +129,9 @@ async function run() {
 
                 // Compare the provided password with the hashed password
                 const isPasswordValid = await bcrypt.compare(password, user.password);
+                console.log(isPasswordValid)
+                console.log(user.password)
+                console.log(password)
 
                 if (!isPasswordValid) {
                     return res.json({
@@ -153,10 +157,80 @@ async function run() {
                 });
             }
         });
+
+        // send verification code to email
+        app.post('/getVerificationCode', async (req, res) => {
+            const { email } = req.body;
+
+            // Generate a random 4-digit OTP
+            const otp = Math.floor(1000 + Math.random() * 5000).toString();
+
+            // Compose the email to send
+            const mailOptions = {
+                to: email, // The recipient's email address
+                subject: 'OTP Verification Code',
+                text: `Your OTP verification code is: ${otp}`,
+            };
+
+            try {
+                // Save the generated OTP along with the user's email and a timestamp to the database
+                const otpData = {
+                    email: email,
+                    otp: otp,
+                    timestamp: new Date()
+                };
+                await otpCollection.insertOne(otpData);
+
+                // Send the email using the nodemailer transporter
+                await transporter.sendMail(mailOptions);
+                res.json({
+                    status: 200,
+                    message: "OTP sent successfully",
+                });
+            } catch (err) {
+                console.error(err);
+                res.json({
+                    status: 500,
+                    message: "Failed to send OTP"
+                });
+            }
+        });
+        
+        // Route to verify the user-provided OTP against the last generated OTP
+        app.post('/verifyOTP', async (req, res) => {
+            const { email, userOTP } = req.body;
+
+            // Find the last OTP generated for the provided email address
+            const query = { email: email };
+            // Sort by timestamp in descending order to get the latest OTP
+            const sort = { timestamp: -1 };
+            const lastOTPData = await otpCollection.findOne(query, { sort: sort });
+
+            if (!lastOTPData) {
+                return res.json({
+                    status: 404,
+                    message: "No OTP found for the provided email"
+                });
+            }
+
+            // Compare the user-provided OTP with the last generated OTP
+            if (userOTP === lastOTPData.otp) {
+                res.json({
+                    status: 200,
+                    message: "OTP matched"
+
+                });
+            } else {
+                res.json({
+                    status: 400,
+                    message: "Invalid OTP"
+                });
+            }
+        });
+
         // update password
         app.put('/reset-password', async (req, res) => {
-            const { data } = req.body;
-            const email = data.email;
+            const { email, password } = req.body;
             const query = { email: email };
             try {
                 const getSingleUser = await usersCollection.findOne(query);
@@ -166,10 +240,12 @@ async function run() {
                         message: "User not found"
                     })
                 }
+                // const hashedPassword = await bcrypt.hash(password, saltRounds);
+                const hashedPassword = await bcrypt.hash(password, saltRounds)
                 const result = await usersCollection.updateOne(query, {
                     // schema validation 
                     $set: {
-                        password: data.password,
+                        password: hashedPassword,
                     }
                 });
                 res.json({

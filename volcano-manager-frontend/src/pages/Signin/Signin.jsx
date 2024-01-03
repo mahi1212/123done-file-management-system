@@ -51,7 +51,9 @@ const Signin = () => {
         if (data.status == 200) {
           setUser(data)
           navigate('/home')
-        } else {
+        }else if(data.status == 401){
+          alert(data.message)
+        }else {
           alert('Something went wrong');
         }
       })
@@ -74,7 +76,7 @@ const Signin = () => {
             <label htmlFor="remember-me" className='ml-[6px] text-slate-500'>Remember me</label>
           </div>
           {/* forgot password */}
-          <p className='text-slate-500 text-[#4C22C5] text-bolder'>Forgot your password?</p>
+          <NavLink to='/reset-password' className='text-slate-500 text-[#4C22C5] text-bolder cursor-pointer'>Forgot your password?</NavLink>
         </div>
       </form>
       {/* buttons */}
