@@ -3,7 +3,6 @@ import {
     RouterProvider,
 } from "react-router-dom";
 import RootLayout from "../Layout/RootLayout";
-import Home from "../pages/Home/Home";
 import Signup from "../pages/Signup/Signup";
 import Signin from "../pages/Signin/Signin";
 import Profile from "../pages/Profile/Profile";
@@ -51,5 +50,9 @@ export const routes = createBrowserRouter([
     {
         path: "/reset-password",
         element: <ResetPassword />,
+    },
+    {
+        path: "*",
+        element: <div>Not Found</div>,
     }
 ])

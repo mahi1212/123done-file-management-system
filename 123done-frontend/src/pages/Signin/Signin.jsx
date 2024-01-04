@@ -51,7 +51,7 @@ const Signin = () => {
         // console.log(data);
         if (data.status == 200) {
           setUser(data)
-          navigate('/home')
+          navigate('/files')
         } else if (data.status == 401) {
           alert(data.message)
         } else {

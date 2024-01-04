@@ -76,7 +76,7 @@ const Signup = () => {
             jwt: data.jwt,
             role: 'user',
           })
-          navigate('/home')
+          navigate('/files')
         } else {
           alert('Something went wrong');
         }

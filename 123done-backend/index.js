@@ -129,9 +129,7 @@ async function run() {
 
                 // Compare the provided password with the hashed password
                 const isPasswordValid = await bcrypt.compare(password, user.password);
-                console.log(isPasswordValid)
-                console.log(user.password)
-                console.log(password)
+
 
                 if (!isPasswordValid) {
                     return res.json({
@@ -163,6 +161,7 @@ async function run() {
             const { email } = req.body;
 
             // Generate a random 4-digit OTP
+            // use library to generate random number
             const otp = Math.floor(1000 + Math.random() * 5000).toString();
 
             // Compose the email to send
@@ -195,10 +194,11 @@ async function run() {
                 });
             }
         });
-        
+
         // Route to verify the user-provided OTP against the last generated OTP
         app.post('/verifyOTP', async (req, res) => {
             const { email, userOTP } = req.body;
+            // do not save the OTP in the database, use express session storage instead
 
             // Find the last OTP generated for the provided email address
             const query = { email: email };
@@ -272,7 +272,7 @@ async function run() {
         });
 
         // get all users
-        app.get('/all-users', verifyJWT, async (req, res) => {
+        app.get('/users', verifyJWT, async (req, res) => {
             try {
                 const result = await usersCollection.find({}).toArray();
                 res.json({
@@ -286,7 +286,51 @@ async function run() {
                 })
             }
         })
-
+        // update single user
+        app.put('/user/:id', verifyJWT, async (req, res) => {
+            const { id } = req.params;
+            const query = { _id: new ObjectId(id) };
+            const { data } = req.body;
+            try {
+                const result = await usersCollection.updateOne(query, {
+                    // schema validation 
+                    $set: {
+                        name: data.name,
+                        role: data?.role?.toLowerCase(),
+                        subscription: data?.subscription?.toLowerCase(),
+                    }
+                });
+                res.json({
+                    status: 200,
+                    data: result
+                })
+            }
+            catch (err) {
+                res.json({
+                    status: 500,
+                    message: "Internal Server Error"
+                })
+            }
+        })
+        // delete single user
+        app.delete('/user/:id', verifyJWT, async (req, res) => {
+            const { id } = req.params;
+            const query = { _id: new ObjectId(id) };
+            try {
+                const result = await usersCollection.deleteOne(query);
+                res.json({
+                    status: 200,
+                    data: result
+                })
+            }
+            catch (err) {
+                res.json({
+                    status: 500,
+                    message: "Internal Server Error"
+                })
+            }
+        })
+        
         console.log('Connected successfully to MongoDB server');
     } catch (err) {
         console.log(err.stack);

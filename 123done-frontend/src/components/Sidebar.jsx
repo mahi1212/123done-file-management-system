@@ -5,7 +5,7 @@ import { userAtom } from '../lib/jotai'
 import logo from '../assets/logo.png'
 import fileIcon from '../assets/files.svg'
 import profileIcon from '../assets/profile.svg'
-import { HiUsers } from "react-icons/hi";
+import { FiUsers } from "react-icons/fi";
 
 const Sidebar = () => {
     const user = useAtomValue(userAtom)
@@ -16,6 +16,21 @@ const Sidebar = () => {
             <br />
             <br />
 
+            {/* {
+                user?.role === 'admin' ?
+                    <NavLink to='/user' className='flex items-center pl-4 mb-4' >
+                        <FiUsers className='w-[20px] h-[20px]' />
+                        <p className='ml-[10px] mt-1'>Users</p>
+                    </NavLink> :
+                    <NavLink to='/files' className='flex pl-4 mb-4' >
+                        <img src={fileIcon} alt="icon" />
+                        <p className='ml-[10px]'>Files</p>
+                    </NavLink>
+            } */}
+            <NavLink to='/user' className='flex items-center pl-4 mb-4' >
+                <FiUsers className='w-[20px] h-[20px]' />
+                <p className='ml-[10px] mt-1'>Users</p>
+            </NavLink>
             <NavLink to='/files' className='flex pl-4 mb-4' >
                 <img src={fileIcon} alt="icon" />
                 <p className='ml-[10px]'>Files</p>
@@ -24,14 +39,6 @@ const Sidebar = () => {
                 <img src={profileIcon} alt="icon" />
                 <p className='ml-[10px]'>Profile</p>
             </NavLink>
-            {
-                user?.role === 'admin' && (
-                    <NavLink to='/user' className='flex items-center pl-4 mb-4' >
-                        <HiUsers className='w-[25px] h-[25px]' />
-                        <p className='ml-[10px] mt-1'>Users</p>
-                    </NavLink>
-                )
-            }
             <div className='absolute bottom-10 flex items-center px-4'>
                 <img src={profileIcon} alt="profile-image" className='w-[45px] h-[45px] border rounded-full p-1' />
                 <div>
