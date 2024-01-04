@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import logo from '../../assets/logo.png'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAtomValue } from 'jotai'
-import { searchTermAtom, userAtom } from '../../lib/jotai'
+import { darkMoodAtom, searchTermAtom, userAtom } from '../../lib/jotai'
 import SearchBar from '../../components/SearchBar'
 import Avatar from '../../assets/avatar.png'
 import { FaUserEdit } from "react-icons/fa";
@@ -13,10 +13,10 @@ import DeleteModal from '../../components/DeleteModal'
 
 const User = () => {
     const user = useAtomValue(userAtom)
+    const darkMode = useAtomValue(darkMoodAtom)
     const searchTerm = useAtomValue(searchTermAtom)
     const queryClient = useQueryClient()
     const [selectedNumber, setSelectedNumber] = useState(10)
-    console.log(selectedNumber)
     // console.log(searchTerm)
     const getUsers = async () => {
         const response = await fetch('http://localhost:5000/users', {
@@ -84,7 +84,7 @@ const User = () => {
     };
 
     return (
-        <div>
+        <div className=''>
             {/* serch bar */}
             <SearchBar />
             <table className="table-auto w-full mt-6 ">
@@ -108,7 +108,13 @@ const User = () => {
                             <td colSpan="3">Error: {error.message}</td>
                         </tr>
                     ) : (
-                        users?.data?.slice(0, selectedNumber)?.map((user) => (
+                        searchTerm.length > 1 ? users?.data?.filter((user) => {
+                            if (searchTerm == "") {
+                                return user
+                            } else if (user.name.toLowerCase().includes(searchTerm.toLowerCase())) {
+                                return user
+                            }
+                        }).map((user) => (
                             <tr key={user._id}>
                                 <td className="border px-4 py-2 ">
                                     <div className='flex flex-row items-center '>
@@ -153,6 +159,52 @@ const User = () => {
 
                             </tr>
                         ))
+                            :
+                            users?.data?.slice(0, selectedNumber)?.map((user) => (
+                                <tr key={user._id}>
+                                    <td className="border px-4 py-2 ">
+                                        <div className='flex flex-row items-center '>
+                                            <img src={user.avatar ? user.avatar : Avatar} alt="avatar" className='w-10 h-10 rounded-full' />
+                                            <div className='flex flex-col items-start ml-4 py-1'>
+                                                <span className='font-bold'>{user.name}</span>
+                                                <span className='text-gray-400'>{user.email}</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    {/* <td className="border px-4 py-2"></td> */}
+                                    <td className="border px-4 py-2">{user.role == 'admin' ? 'Admin' : 'User'}</td>
+                                    <td className="border px-4 py-2">{user.subscription.toUpperCase()}</td>
+                                    <td className="border px-4 py-2">{user.storage_used} MB</td>
+
+                                    {/* edit and delete button */}
+                                    <td className="border px-4 py-2">
+                                        <FaUserEdit
+                                            className='hover: cursor-pointer w-[30px]'
+                                            onClick={() => toggleEditModal(user)} // Pass the user data to the function
+                                        />
+                                        {isEditModalVisible && selectedUser && (
+                                            <EditModal
+                                                closeModal={toggleEditModal}
+                                                userName={selectedUser.name}
+                                                userRole={selectedUser.role}
+                                                userSubscription={selectedUser.subscription}
+                                                onUpdate={updateUserInfo}
+                                            />
+                                        )}
+                                    </td>
+                                    <td className="border px-4 py-2 text-center">
+                                        <MdDelete className='hover: cursor-pointer w-[25px] h-[25px]' onClick={() => toggleModal(user)} />
+                                        {isModalVisible && (
+                                            <DeleteModal
+                                                closeModal={toggleModal}
+                                                onUpdate={updateUserInfo}
+                                                user={selectedUser}
+                                            />
+                                        )}
+                                    </td>
+
+                                </tr>
+                            ))
                     )}
                 </tbody>
             </table>

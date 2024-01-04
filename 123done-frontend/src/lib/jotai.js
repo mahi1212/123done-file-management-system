@@ -4,3 +4,4 @@ import { atomWithStorage } from "jotai/utils";
 export const userAtom = atomWithStorage('user', {});
 export const loadingAtom = atom(false)
 export const searchTermAtom = atom('')
+export const darkMoodAtom = atom(false)
