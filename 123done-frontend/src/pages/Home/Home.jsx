@@ -6,8 +6,9 @@ const Home = () => {
   const userData = useAtom(userAtom)
 
   return (
-    <div className='flex w-full h-full'>
-      Home + {JSON.stringify(userData)}
+    <div className='flex flex-wrap'>
+      asdasdasdasd
+      
     </div>
   )
 }

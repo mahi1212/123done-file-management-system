@@ -8,9 +8,10 @@ import Signup from "../pages/Signup/Signup";
 import Signin from "../pages/Signin/Signin";
 import Profile from "../pages/Profile/Profile";
 import PrivateRoute from "./PrivateRoutes";
-import Test from "../pages/Test/Test";
 import AdminRoutes from "./AdminRoutes";
 import ResetPassword from "../pages/ResetPassword/ResetPassword";
+import User from "../pages/User/User";
+import Files from "../pages/Files/Files";
 
 export const routes = createBrowserRouter([
     {
@@ -19,19 +20,23 @@ export const routes = createBrowserRouter([
         children: [
             {
                 path: "/",
-                element: <Home />,
+                element: <Files />,
             },
             {
-                path: "/home",
-                element: <Home />,
+                path: "/files",
+                element: <Files />,
             },
             {
                 path: "/profile",
                 element: <Profile />,
             },
             {
-                path: "/test",
-                element: <AdminRoutes><Test /></AdminRoutes>,
+                path: "/user",
+                element: <AdminRoutes><User /></AdminRoutes>,
+            },
+            {
+                path: "*",
+                element: <div>Not Found</div>,
             }
         ]
     },
