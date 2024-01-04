@@ -1,15 +1,36 @@
 import { useAtomValue } from 'jotai'
 import React from 'react'
-import { NavLink } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
 import { userAtom } from '../lib/jotai'
 import logo from '../assets/logo.png'
 import fileIcon from '../assets/files.svg'
 import profileIcon from '../assets/profile.svg'
 import { FiUsers } from "react-icons/fi";
+import { CiLogout } from "react-icons/ci";
 
 const Sidebar = () => {
     const user = useAtomValue(userAtom)
-    // console.log(user)
+    const navigate = useNavigate()
+    console.log(user)
+    const handleLogout = () => {
+        fetch(`http://localhost:5000/logout?jwt=${user.jwt}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+            .then(res => res.json())
+            .then(data => {
+                console.log(data)
+                if (data.status !== 400) {
+                    navigate('/signin')
+                }else{
+                    alert('Something went wrong')
+                }
+            })
+            .catch(err => console.log(err))
+    }
+
     return (
         <div className='w-[255px] min-w-[255px] bg-[#1C2434] h-screen text-white relative '>
             <img src={logo} alt="logo" className='w-full h-[55px]' />
@@ -39,6 +60,13 @@ const Sidebar = () => {
                 <img src={profileIcon} alt="icon" />
                 <p className='ml-[10px]'>Profile</p>
             </NavLink>
+            <p
+                className='flex items-center pl-20 mb-4 absolute bottom-24 hover:border border-gray-500 w-[100%] py-2'
+                onClick={handleLogout}
+            >
+                <CiLogout />
+                <p className='ml-[10px]'>Logout</p>
+            </p>
             <div className='absolute bottom-10 flex items-center px-4'>
                 <img src={profileIcon} alt="profile-image" className='w-[45px] h-[45px] border rounded-full p-1' />
                 <div>

@@ -286,6 +286,24 @@ async function run() {
                 })
             }
         })
+        // get single user
+        app.get('/user/:id', verifyJWT, async (req, res) => {
+            const { id } = req.params;
+            const query = { _id: new ObjectId(id) };
+            try {
+                const result = await usersCollection.findOne(query);
+                res.json({
+                    status: 200,
+                    data: result
+                })
+            } catch (err) {
+                res.json({
+                    status: 500,
+                    message: "Internal Server Error"
+                })
+            }
+        })
+        
         // update single user
         app.put('/user/:id', verifyJWT, async (req, res) => {
             const { id } = req.params;
@@ -330,7 +348,7 @@ async function run() {
                 })
             }
         })
-        
+
         console.log('Connected successfully to MongoDB server');
     } catch (err) {
         console.log(err.stack);
