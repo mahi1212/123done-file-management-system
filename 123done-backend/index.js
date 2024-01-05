@@ -5,6 +5,8 @@ const bcrypt = require('bcrypt');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
 const nodemailer = require('nodemailer');
+const multer = require('multer');
+
 
 const port = process.env.PORT || 5000
 const app = express();
@@ -12,7 +14,6 @@ const app = express();
 // Middleware
 app.use(cors())
 app.use(express.json())
-
 // Simulated blacklist of invalidated tokens
 const invalidatedTokens = new Set();
 
@@ -61,6 +62,21 @@ const transporter = nodemailer.createTransport({
     }
 });
 
+// Multer storage configuration
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads/'); // Specify the upload directory
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + '-' + file.originalname); // Specify the filename
+    },
+});
+
+const upload = multer({ storage });
+
+// Serve static files from the uploads directory to the /uploads route for image preview
+app.use('/uploads', express.static('uploads'));
+
 async function run() {
     try {
         // await client.connect();
@@ -70,6 +86,27 @@ async function run() {
         // Number of salt rounds for bcrypt hashing
         const saltRounds = 10;
 
+        // Define the upload route
+        app.post('/upload', upload.single('file'), (req, res) => {
+            console.log('hit')
+
+            try {
+                console.log('hit')
+                const uploadedFile = req.file;
+                if (!uploadedFile) {
+                    return res.status(400).json({ message: 'No file uploaded' });
+                }
+                const fileName = uploadedFile.filename;
+                console.log('File uploaded:', fileName);
+
+                // You can do further processing with the uploaded file here
+
+                return res.status(200).json({ message: 'File uploaded successfully', fileName });
+            } catch (error) {
+                console.error('Error uploading file:', error);
+                return res.status(500).json({ message: 'Internal Server Error' });
+            }
+        });
         // create user
         app.post('/register', async (req, res) => {
             const { data } = req.body;
@@ -271,6 +308,9 @@ async function run() {
             res.json({ message: 'Token invalidated' });
         });
 
+        // here we starting user crud operation
+
+
         // get all users
         app.get('/users', verifyJWT, async (req, res) => {
             try {
@@ -303,25 +343,84 @@ async function run() {
                 })
             }
         })
-        
+
+        // // update single user all data - for admin
+        // app.put('/update-user/:id', verifyJWT, upload.single('file'), async (req, res) => {
+        //     const { id } = req.params;
+        //     console.log(id)
+        //     const query = { _id: new ObjectId(id) };
+        //     const { data } = req.body;
+        //     console.log('hit')
+        //     console.log(req.file, 'file')
+        //     try {
+        //         const getSingleUser = await usersCollection.findOne(query);
+        //         console.log(getSingleUser)
+        //         if (!getSingleUser) {
+        //             return res.json({
+        //                 status: 404,
+        //                 message: "User not found"
+        //             });
+        //         }
+
+        //         // Construct the update object conditionally based on the fields in the data object
+        //         let updateObject = {};
+        //         if (data?.name !== undefined) updateObject.name = data?.name;
+        //         if (data?.email) updateObject.email = data?.email;
+        //         if (data?.image !== undefined) updateObject.image = data?.image;
+        //         updateObject.updatedAt = new Date();
+        //         if (req.file) {
+        //             updateObject.image = req.file.filename; // Save the uploaded filename
+        //             console.log('aise')
+        //         }
+        //         console.log(updateObject)
+        //         const result = await usersCollection.updateOne(query, { $set: updateObject });
+        //         // console.log(result);
+        //         res.json({
+        //             status: 200,
+        //             data: result
+        //         });
+        //     } catch (err) {
+        //         console.log(err)
+        //         res.json({
+        //             status: 500,
+        //             message: "Internal Server Error"
+        //         });
+        //     }
+        // });
         // update single user
-        app.put('/user/:id', verifyJWT, async (req, res) => {
+        app.put('/user/:id', verifyJWT, upload.single('file'), async (req, res) => {
             const { id } = req.params;
             const query = { _id: new ObjectId(id) };
             const { data } = req.body;
+            console.log('FFFFFUCK')
             try {
-                const result = await usersCollection.updateOne(query, {
-                    // schema validation 
-                    $set: {
-                        name: data.name,
-                        role: data?.role?.toLowerCase(),
-                        subscription: data?.subscription?.toLowerCase(),
-                    }
-                });
+                // Construct the update object conditionally based on the fields in the data object
+                let updateObject = {};
+                if (data?.name !== undefined) updateObject.name = data?.name;
+                if (data?.email) updateObject.email = data?.email;
+                if (data?.role) updateObject.role = data?.role;
+                if (data?.subscription) updateObject.subscription = data?.subscription;
+
+                // let updateObject = {
+                //     name: data.name,
+                //     role: data?.role?.toLowerCase(),
+                //     subscription: data?.subscription?.toLowerCase(),
+                // };
+
+                // Check if req.file exists (image uploaded)
+                if (req?.file) {
+                    console.log('file exists')
+                    updateObject.image = req.file.filename;
+                }
+
+                // add update time
+                updateObject.updatedAt = new Date();
+                console.log(updateObject, 'updateObject')
+                const result = await usersCollection.updateOne(query, { $set: updateObject });
                 res.json({
                     status: 200,
-                    data: result
-                })
+                    data: result,
+                });
             }
             catch (err) {
                 res.json({

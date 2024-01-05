@@ -88,7 +88,7 @@ const User = () => {
             {/* serch bar */}
             <SearchBar />
             <table className="table-auto w-full mt-6 ">
-                <thead className='bg-gray-200'>
+                <thead className='bg-gray-100'>
                     <tr >
                         <th className="px-4 py-2 text-start">NAME</th>
                         <th className="px-4 py-2 text-start">ROLE</th>
@@ -214,7 +214,7 @@ const User = () => {
                     Total number of users : {users?.data?.length}
                 </p>
                 <div className='flex items-center'>
-                    <p className='mr-2 font-bold'>View number of data</p>
+                    <p className='mr-2 font-bold'>Rows per page</p>
                     <select
                         value={selectedNumber}
                         onChange={(e) => setSelectedNumber(e.target.value)}
