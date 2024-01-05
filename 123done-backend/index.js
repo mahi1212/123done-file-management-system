@@ -83,6 +83,8 @@ async function run() {
         const database = client.db('volcano');
         const usersCollection = database.collection('users');
         const otpCollection = database.collection('otp');
+        const contentCollection = database.collection('content');
+
         // Number of salt rounds for bcrypt hashing
         const saltRounds = 10;
 
@@ -183,7 +185,9 @@ async function run() {
                     jwt: token,
                     name: user.name,
                     email: user.email,
-                    role: user.role
+                    role: user.role,
+                    subscription: user.subscription,
+                    image: user.image,
                 });
             } catch (err) {
                 res.json({
@@ -344,49 +348,6 @@ async function run() {
             }
         })
 
-        // // update single user all data - for admin
-        // app.put('/update-user/:id', verifyJWT, upload.single('file'), async (req, res) => {
-        //     const { id } = req.params;
-        //     console.log(id)
-        //     const query = { _id: new ObjectId(id) };
-        //     const { data } = req.body;
-        //     console.log('hit')
-        //     console.log(req.file, 'file')
-        //     try {
-        //         const getSingleUser = await usersCollection.findOne(query);
-        //         console.log(getSingleUser)
-        //         if (!getSingleUser) {
-        //             return res.json({
-        //                 status: 404,
-        //                 message: "User not found"
-        //             });
-        //         }
-
-        //         // Construct the update object conditionally based on the fields in the data object
-        //         let updateObject = {};
-        //         if (data?.name !== undefined) updateObject.name = data?.name;
-        //         if (data?.email) updateObject.email = data?.email;
-        //         if (data?.image !== undefined) updateObject.image = data?.image;
-        //         updateObject.updatedAt = new Date();
-        //         if (req.file) {
-        //             updateObject.image = req.file.filename; // Save the uploaded filename
-        //             console.log('aise')
-        //         }
-        //         console.log(updateObject)
-        //         const result = await usersCollection.updateOne(query, { $set: updateObject });
-        //         // console.log(result);
-        //         res.json({
-        //             status: 200,
-        //             data: result
-        //         });
-        //     } catch (err) {
-        //         console.log(err)
-        //         res.json({
-        //             status: 500,
-        //             message: "Internal Server Error"
-        //         });
-        //     }
-        // });
         // update single user
         app.put('/user/:id', verifyJWT, upload.single('file'), async (req, res) => {
             const { id } = req.params;
@@ -400,12 +361,6 @@ async function run() {
                 if (data?.email) updateObject.email = data?.email;
                 if (data?.role) updateObject.role = data?.role;
                 if (data?.subscription) updateObject.subscription = data?.subscription;
-
-                // let updateObject = {
-                //     name: data.name,
-                //     role: data?.role?.toLowerCase(),
-                //     subscription: data?.subscription?.toLowerCase(),
-                // };
 
                 // Check if req.file exists (image uploaded)
                 if (req?.file) {
@@ -441,6 +396,110 @@ async function run() {
                 })
             }
             catch (err) {
+                res.json({
+                    status: 500,
+                    message: "Internal Server Error"
+                })
+            }
+        })
+
+        // content crud operation
+        app.get('/contents', verifyJWT, async (req, res) => {
+            try {
+                const result = await contentCollection.find({}).toArray();
+                res.json({
+                    status: 200,
+                    data: result
+                })
+            } catch (err) {
+                res.json({
+                    status: 500,
+                    message: "Internal Server Error"
+                })
+            }
+        }
+        )
+        // get single content
+        app.get('/content/:id', verifyJWT, async (req, res) => {
+            const { id } = req.params;
+            const query = { _id: new ObjectId(id) };
+            try {
+                const result = await contentCollection.findOne(query);
+                res.json({
+                    status: 200,
+                    data: result
+                })
+            } catch (err) {
+                res.json({
+                    status: 500,
+                    message: "Internal Server Error"
+                })
+            }
+        })
+        // create content
+        app.post('/content', verifyJWT, async (req, res) => {
+            const { data } = req.body;
+            try {
+                const result = await contentCollection.insertOne(data);
+                res.json({
+                    status: 200,
+                    data: result
+                })
+            } catch (err) {
+                res.json({
+                    status: 500,
+                    message: "Internal Server Error"
+                })
+            }
+        })
+        // update content
+        app.put('/content/:id', verifyJWT, async (req, res) => {
+            const { id } = req.params;
+            const query = { _id: new ObjectId(id) };
+            const { data } = req.body;
+            try {
+                const result = await contentCollection.updateOne(query, { $set: data });
+                res.json({
+                    status: 200,
+                    data: result
+                })
+            } catch (err) {
+                res.json({
+                    status: 500,
+                    message: "Internal Server Error"
+                })
+            }
+        })
+        // delete content
+        app.delete('/content/:id', verifyJWT, async (req, res) => {
+            const { id } = req.params;
+            const query = { _id: new ObjectId(id) };
+            try {
+                const result = await contentCollection.deleteOne(query);
+                res.json({
+                    status: 200,
+                    data: result
+                })
+            }
+            catch (err) {
+                res.json({
+                    status: 500,
+                    message: "Internal Server Error"
+                })
+            }
+        })
+
+        // get all contents by user id
+        app.get('/contents/:id', verifyJWT, async (req, res) => {
+            const { id } = req.params;
+            const query = { owner: id };
+            try {
+                const result = await contentCollection.find(query).toArray();
+                res.json({
+                    status: 200,
+                    data: result
+                })
+            } catch (err) {
                 res.json({
                     status: 500,
                     message: "Internal Server Error"

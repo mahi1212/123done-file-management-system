@@ -11,7 +11,7 @@ import { CiLogout } from "react-icons/ci";
 const Sidebar = () => {
     const user = useAtomValue(userAtom)
     const navigate = useNavigate()
-    // console.log(user)
+    console.log(user)
     const handleLogout = () => {
         fetch(`http://localhost:5000/logout?jwt=${user.jwt}`, {
             method: 'GET',
@@ -68,7 +68,7 @@ const Sidebar = () => {
                 <p className='ml-[10px]'>Logout</p>
             </p>
             <div className='absolute bottom-10 flex items-center px-4'>
-                <img src={profileIcon} alt="profile-image" className='w-[45px] h-[45px] border rounded-full p-1' />
+                <img src={user.image ? `http://localhost:5000/uploads/${user.image}` : profileIcon} alt="profile-image" className='w-[45px] h-[45px] rounded-full' />
                 <div>
                     <p className='ml-[10px]'>{user?.name}</p>
                     <p className='ml-[10px]'>{user?.email}</p>
