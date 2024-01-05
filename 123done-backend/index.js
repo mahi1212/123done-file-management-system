@@ -404,7 +404,7 @@ async function run() {
         })
 
         // content crud operation
-        app.get('/contents', verifyJWT, async (req, res) => {
+        app.get('/content', verifyJWT, async (req, res) => {
             try {
                 const result = await contentCollection.find({}).toArray();
                 res.json({
@@ -452,6 +452,26 @@ async function run() {
                 })
             }
         })
+
+        // get all contents by user id
+        app.get('/contents/:id', verifyJWT, async (req, res) => {
+            const { id } = req.params;
+            const query = { owner: id };
+            try {
+                const result = await contentCollection.find(query).toArray();
+                res.json({
+                    status: 200,
+                    data: result
+                })
+            } catch (err) {
+                res.json({
+                    status: 500,
+                    message: "Internal Server Error"
+                })
+            }
+        })
+
+        // get all contents by user id
         // update content
         app.put('/content/:id', verifyJWT, async (req, res) => {
             const { id } = req.params;
@@ -489,24 +509,7 @@ async function run() {
             }
         })
 
-        // get all contents by user id
-        app.get('/contents/:id', verifyJWT, async (req, res) => {
-            const { id } = req.params;
-            const query = { owner: id };
-            try {
-                const result = await contentCollection.find(query).toArray();
-                res.json({
-                    status: 200,
-                    data: result
-                })
-            } catch (err) {
-                res.json({
-                    status: 500,
-                    message: "Internal Server Error"
-                })
-            }
-        })
-
+        
         console.log('Connected successfully to MongoDB server');
     } catch (err) {
         console.log(err.stack);

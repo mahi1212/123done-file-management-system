@@ -26,6 +26,10 @@ export const routes = createBrowserRouter([
                 element: <Files />,
             },
             {
+                path: "/files/:id",
+                element: <Files />,
+            },
+            {
                 path: "/profile",
                 element: <Profile />,
             },
