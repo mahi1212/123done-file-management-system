@@ -164,7 +164,7 @@ const User = () => {
                                 <tr key={user._id}>
                                     <td className="border px-4 py-2 ">
                                         <div className='flex flex-row items-center '>
-                                            <img src={user.avatar ? user.avatar : Avatar} alt="avatar" className='w-10 h-10 rounded-full' />
+                                            <img src={user.image ? `http://localhost:5000/uploads/${user.image}` : Avatar} alt="avatar" className='w-10 h-10 rounded-full' />
                                             <div className='flex flex-col items-start ml-4 py-1'>
                                                 <span className='font-bold'>{user.name}</span>
                                                 <span className='text-gray-400'>{user.email}</span>

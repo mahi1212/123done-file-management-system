@@ -1,9 +1,10 @@
 import React from 'react'
+import SearchBar from '../../components/SearchBar'
 
 const Files = () => {
     return (
         <div>
-            Files
+            <SearchBar type='file' />
         </div>
     )
 }
