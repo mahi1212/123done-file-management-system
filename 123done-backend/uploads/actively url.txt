@@ -1,0 +1,17 @@
+find and replace with:
+
+Subscriptions: https://microservices.actively.world/subscriptions/
+Subscriptions: http://localhost:8080/
+
+Plans: https://microservices.actively.world/plans/
+Plans: http://localhost:5000/
+
+Multi-day: https://microservices.actively.world/multiday/
+Multi-day: http://localhost:4000/
+
+Homepage: http://localhost:3000/
+Homepage: https://microservices.actively.world/
+
+
+mahi121.mr2@gmail.com
+free@actively.com

@@ -158,7 +158,7 @@ const Files = () => {
 
             if (response.status === 200) {
                 queryClient.invalidateQueries('content')
-                alert('Uploaded Successfully')
+                setShowUploadDiv(false)
             } else {
                 alert('Something went wrong')
             }
@@ -178,6 +178,12 @@ const Files = () => {
             onClick={() => {
                 if (dotClicked) {
                     setDotClicked(false)
+                }
+                if (showPreview) {
+                    setShowPreview(false)
+                }
+                if (showUploadDiv) {
+                    setShowUploadDiv(false)
                 }
             }}>
             <SearchBar type='file' />
@@ -222,9 +228,9 @@ const Files = () => {
                         </button>
                     </div>
                     {
-                        showUploadDiv && <div className='absolute right-0 top-20 bg-gray-400 w-[400px] p-4 z-40 border rounded-md'>
+                        showUploadDiv && <div className='absolute right-0 top-20 bg-gray-400 w-[440px] p-4 z-40 border rounded-md'>
                             <input type="file" onChange={handleFileChange} />
-                            <button onClick={handleFormSubmit}>Submit</button>
+                            <button onClick={handleFormSubmit} className='bg-slate-300 px-4 py-1 rounded'>Submit</button>
                         </div>
                     }
                 </div>
@@ -318,9 +324,34 @@ const Files = () => {
                                             }}>
                                                 Delete
                                             </p>
-                                            {/* <p className='text-sm text-gray-500 p-2 hover:bg-gray-200 rounded'>
-                                Download
-                            </p> */}
+                                            {
+                                                item?.isFolder == false &&
+                                                <p className='text-sm text-gray-500 p-2 hover:bg-gray-200 rounded' 
+                                                    onClick={()=>{
+                                                        fetch(`http://localhost:5000/uploads/${item?.name}`, {
+                                                            method: 'GET',
+                                                            headers: {
+                                                                'Content-Type': 'application/json',
+                                                                'Authorization': `${user.jwt}`
+                                                            },
+                                                        })
+                                                        .then(response => response.blob())
+                                                        .then(blob => {
+                                                            const url = window.URL.createObjectURL(blob);
+                                                            const a = document.createElement('a');
+                                                            a.href = url;
+                                                            a.download = item?.name;
+                                                            document.body.appendChild(a); // we need to append the element to the dom -> otherwise it will not work in firefox
+                                                            a.click();    
+                                                            a.remove();  //afterwards we remove the element again         
+                                                        });
+                                                    
+                                                    }}
+                                                >
+                                                    Download
+                                                </p>
+                                            }
+
                                         </div>
                                     )}
                                 </div>
