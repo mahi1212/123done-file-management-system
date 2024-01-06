@@ -24,7 +24,8 @@ const Files = () => {
     const [showPreview, setShowPreview] = useState(false)
     const [fileName, setFileName] = useState('')
     const [showUploadDiv, setShowUploadDiv] = useState(false)
-
+    const [file, setFile] = useState(null);
+    console.log(file)
 
 
 
@@ -102,8 +103,7 @@ const Files = () => {
     });
 
 
-    const [file, setFile] = useState(null);
-    console.log(file)
+
     // console.log(id)
     const [formData, setFormData] = useState({
         data: {
@@ -122,7 +122,7 @@ const Files = () => {
 
     const handleFileChange = (e) => {
         const selectedFile = e.target.files[0];
-
+        console.log(selectedFile)
         setFile(selectedFile);
 
         // Update the formData with file information
@@ -182,7 +182,7 @@ const Files = () => {
                 if (showPreview) {
                     setShowPreview(false)
                 }
-                if (showUploadDiv) {
+                if (showUploadDiv == true) {
                     setShowUploadDiv(false)
                 }
             }}>
@@ -219,20 +219,26 @@ const Files = () => {
                     }
                     <div
                         onClick={() => {
-                            setShowUploadDiv(!showUploadDiv)
+                            setShowUploadDiv(true)
                         }}
                         className='flex items-center justify-around bg-black transition hover:bg-white-700 text-white hover:bg-white hover:text-black hover:outline outline-black font-bold py-[6px] px-4 rounded cursor-pointer'>
                         <FaPlus />
                         <button className='ml-2'>
                             Upload File
                         </button>
-                    </div>
-                    {
-                        showUploadDiv && <div className='absolute right-0 top-20 bg-gray-400 w-[440px] p-4 z-40 border rounded-md'>
+                        <div className='absolute right-0 top-20 bg-gray-400 w-[400px] p-4 z-40 border rounded-md'>
                             <input type="file" onChange={handleFileChange} />
-                            <button onClick={handleFormSubmit} className='bg-slate-300 px-4 py-1 rounded'>Submit</button>
+                            <button onClick={handleFormSubmit}>Submit</button>
                         </div>
-                    }
+                        {/* {
+                            showUploadDiv && <div className='absolute right-0 top-20 bg-gray-400 w-[400px] p-4 z-40 border rounded-md'>
+                                <input type="file" onChange={handleFileChange} />
+                                <button onClick={handleFormSubmit}>Submit</button>
+                            </div>
+                        } */}
+
+                    </div>
+
                 </div>
             </div>
             {/* contents */}
@@ -314,7 +320,7 @@ const Files = () => {
                                         <HiOutlineDotsVertical />
                                     </p>
                                     {(dotClicked && selectedId === item._id) && (
-                                        <div className='absolute top-12 right-[10px] bg-white rounded-md shadow-md p-2'>
+                                        <div className='absolute top-12 right-[10px] bg-white rounded-md shadow-md p-2 z-20'>
                                             <p className='text-sm text-gray-500 p-2 hover:bg-gray-200 rounded'>
                                                 Rename
                                             </p>
@@ -326,8 +332,8 @@ const Files = () => {
                                             </p>
                                             {
                                                 item?.isFolder == false &&
-                                                <p className='text-sm text-gray-500 p-2 hover:bg-gray-200 rounded' 
-                                                    onClick={()=>{
+                                                <p className='text-sm text-gray-500 p-2 hover:bg-gray-200 rounded'
+                                                    onClick={() => {
                                                         fetch(`http://localhost:5000/uploads/${item?.name}`, {
                                                             method: 'GET',
                                                             headers: {
@@ -335,17 +341,18 @@ const Files = () => {
                                                                 'Authorization': `${user.jwt}`
                                                             },
                                                         })
-                                                        .then(response => response.blob())
-                                                        .then(blob => {
-                                                            const url = window.URL.createObjectURL(blob);
-                                                            const a = document.createElement('a');
-                                                            a.href = url;
-                                                            a.download = item?.name;
-                                                            document.body.appendChild(a); // we need to append the element to the dom -> otherwise it will not work in firefox
-                                                            a.click();    
-                                                            a.remove();  //afterwards we remove the element again         
-                                                        });
-                                                    
+                                                            .then(response => response.blob())
+                                                            .then(blob => {
+                                                                const url = window.URL.createObjectURL(blob);
+                                                                const a = document.createElement('a');
+                                                                a.href = url;
+                                                                a.download = item?.name;
+                                                                // we need to append the element to the dom -> otherwise it will not work in firefox
+                                                                document.body.appendChild(a);
+                                                                a.click();
+                                                                a.remove();  //afterwards we remove the element again         
+                                                            });
+
                                                     }}
                                                 >
                                                     Download

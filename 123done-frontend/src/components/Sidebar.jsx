@@ -41,7 +41,7 @@ const Sidebar = () => {
             <br />
             <br />
             
-            {/* {
+            {
                 user?.role === 'admin' ?
                     <NavLink to='/user' className='flex items-center pl-4 mb-4' >
                         <FiUsers className='w-[20px] h-[20px]' />
@@ -51,15 +51,15 @@ const Sidebar = () => {
                         <img src={fileIcon} alt="icon" />
                         <p className='ml-[10px]'>Files</p>
                     </NavLink>
-            } */}
-            <NavLink to='/user' className='flex items-center pl-4 hover:bg-gray-900 w-[100%] py-2 transition duration-300 ease-in-out cursor-pointer' >
+            }
+            {/* <NavLink to='/user' className='flex items-center pl-4 hover:bg-gray-900 w-[100%] py-2 transition duration-300 ease-in-out cursor-pointer' >
                 <FiUsers className='w-[20px] h-[20px]' />
                 <p className='ml-[10px] mt-1'>Users</p>
             </NavLink>
             <NavLink to='/files' className='flex pl-4 hover:bg-gray-900 w-[100%] py-2 transition duration-300 ease-in-out cursor-pointer' >
                 <img src={fileIcon} alt="icon" />
                 <p className='ml-[10px]'>Files</p>
-            </NavLink>
+            </NavLink> */}
             <NavLink to='/profile' className='flex pl-4 hover:bg-gray-900 w-[100%] py-2 transition duration-300 ease-in-out cursor-pointer' >
                 <img src={profileIcon} alt="icon" />
                 <p className='ml-[10px]'>Profile</p>

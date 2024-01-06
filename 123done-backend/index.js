@@ -88,27 +88,27 @@ async function run() {
         // Number of salt rounds for bcrypt hashing
         const saltRounds = 10;
 
-        // Define the upload route
-        app.post('/upload', upload.single('file'), (req, res) => {
-            console.log('hit')
+        // // Define the upload route
+        // app.post('/upload', upload.single('file'), (req, res) => {
+        //     console.log('hit')
 
-            try {
-                console.log('hit')
-                const uploadedFile = req.file;
-                if (!uploadedFile) {
-                    return res.status(400).json({ message: 'No file uploaded' });
-                }
-                const fileName = uploadedFile.filename;
-                console.log('File uploaded:', fileName);
+        //     try {
+        //         console.log('hit')
+        //         const uploadedFile = req.file;
+        //         if (!uploadedFile) {
+        //             return res.status(400).json({ message: 'No file uploaded' });
+        //         }
+        //         const fileName = uploadedFile.filename;
+        //         console.log('File uploaded:', fileName);
 
-                // You can do further processing with the uploaded file here
+        //         // You can do further processing with the uploaded file here
 
-                return res.status(200).json({ message: 'File uploaded successfully', fileName });
-            } catch (error) {
-                console.error('Error uploading file:', error);
-                return res.status(500).json({ message: 'Internal Server Error' });
-            }
-        });
+        //         return res.status(200).json({ message: 'File uploaded successfully', fileName });
+        //     } catch (error) {
+        //         console.error('Error uploading file:', error);
+        //         return res.status(500).json({ message: 'Internal Server Error' });
+        //     }
+        // });
         // create user
         app.post('/register', async (req, res) => {
             const { data } = req.body;
@@ -179,6 +179,7 @@ async function run() {
 
                 // Password is valid, generate and send JWT token in the response
                 const token = generateToken({ userId: user._id });
+                // use res.status here
                 res.json({
                     status: 200,
                     _id: user._id,
@@ -353,7 +354,7 @@ async function run() {
             const { id } = req.params;
             const query = { _id: new ObjectId(id) };
             const { data } = req.body;
-            console.log('FFFFFUCK')
+            // console.log('FFFFFUCK')
             try {
                 // Construct the update object conditionally based on the fields in the data object
                 let updateObject = {};
