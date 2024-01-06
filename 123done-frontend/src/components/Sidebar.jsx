@@ -1,5 +1,4 @@
 import { useAtomValue } from 'jotai'
-import React from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { userAtom } from '../lib/jotai'
 import logo from '../assets/logo.png'
@@ -11,7 +10,7 @@ import { CiLogout } from "react-icons/ci";
 const Sidebar = () => {
     const user = useAtomValue(userAtom)
     const navigate = useNavigate()
-    console.log(user)
+    // console.log(user)
     const handleLogout = () => {
         fetch(`http://localhost:5000/logout?jwt=${user.jwt}`, {
             method: 'GET',
@@ -33,10 +32,15 @@ const Sidebar = () => {
 
     return (
         <div className='w-[255px] min-w-[255px] bg-[#1C2434] h-screen text-white relative '>
-            <img src={logo} alt="logo" className='w-full h-[55px]' />
+            {/* <img src={logo} alt="logo" className='w-full h-[55px]' /> */}
+            <p className='text-3xl ps-4 pb-2 mt-2 font-mono cursor-pointer border border-t-0 border-x-0' onClick={()=>{
+                navigate('/')
+            }}>
+                123DONE
+            </p>
             <br />
             <br />
-
+            
             {/* {
                 user?.role === 'admin' ?
                     <NavLink to='/user' className='flex items-center pl-4 mb-4' >

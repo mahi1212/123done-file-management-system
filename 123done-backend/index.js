@@ -6,7 +6,7 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
 const nodemailer = require('nodemailer');
 const multer = require('multer');
-
+const fs = require('fs').promises;
 
 const port = process.env.PORT || 5000
 const app = express();
@@ -68,7 +68,7 @@ const storage = multer.diskStorage({
         cb(null, 'uploads/'); // Specify the upload directory
     },
     filename: (req, file, cb) => {
-        cb(null, Date.now() + '-' + file.originalname); // Specify the filename
+        cb(null, file.originalname); // Specify the filename
     },
 });
 
@@ -437,21 +437,37 @@ async function run() {
             }
         })
         // create content
-        app.post('/content', verifyJWT, async (req, res) => {
-            const { data } = req.body;
+        app.post('/content', verifyJWT, upload.single('file'), async (req, res) => {
+            let { data } = req.body;
+            if (typeof data === 'string') {
+                data = JSON.parse(data);
+            }
             try {
                 const result = await contentCollection.insertOne(data);
+                // update size of the content in user collection
+                const { owner } = data;
+                const query = { _id: new ObjectId(owner) };
+                const user = await usersCollection.findOne(query);
+                const { storage_used } = user;
+                const updateSize = storage_used + data.size;
+                const updateObject = { storage_used: updateSize };
+
+                await usersCollection.updateOne(query, { $set: updateObject });
+
                 res.json({
                     status: 200,
-                    data: result
-                })
+                    data: result,
+                });
             } catch (err) {
-                res.json({
+                console.error('Error:', err);
+
+                res.status(500).json({
                     status: 500,
-                    message: "Internal Server Error"
-                })
+                    message: 'Internal Server Error',
+                    error: err.message, // Include the error message in the response
+                });
             }
-        })
+        });
 
         // get all contents by user id
         app.get('/contents/:id', verifyJWT, async (req, res) => {
@@ -471,7 +487,42 @@ async function run() {
             }
         })
 
-        // get all contents by user id
+        app.put('/user/:id', verifyJWT, upload.single('file'), async (req, res) => {
+            const { id } = req.params;
+            const query = { _id: new ObjectId(id) };
+            const { data } = req.body;
+            try {
+                // Construct the update object conditionally based on the fields in the data object
+                let updateObject = {};
+                // console.log('FFFFFUCK')
+                if (data?.name !== undefined) updateObject.name = data?.name;
+                if (data?.email) updateObject.email = data?.email;
+                if (data?.role) updateObject.role = data?.role;
+                if (data?.subscription) updateObject.subscription = data?.subscription;
+
+                // Check if req.file exists (image uploaded)
+                if (req?.file) {
+                    console.log('file exists')
+                    updateObject.image = req.file.filename;
+                }
+
+                // add update time
+                updateObject.updatedAt = new Date();
+                console.log(updateObject, 'updateObject')
+                const result = await usersCollection.updateOne(query, { $set: updateObject });
+                res.json({
+                    status: 200,
+                    data: result,
+                });
+            }
+            catch (err) {
+                res.json({
+                    status: 500,
+                    message: "Internal Server Error"
+                })
+            }
+        })
+
         // update content
         app.put('/content/:id', verifyJWT, async (req, res) => {
             const { id } = req.params;
@@ -496,6 +547,7 @@ async function run() {
             const query = { _id: new ObjectId(id) };
             try {
                 const result = await contentCollection.deleteOne(query);
+                // also delete the file from the server
                 res.json({
                     status: 200,
                     data: result
@@ -507,9 +559,51 @@ async function run() {
                     message: "Internal Server Error"
                 })
             }
+            // try {
+            //     // Fetch the content data to get the file name
+            //     const contentData = await contentCollection.findOne(query);
+
+            //     if (!contentData) {
+            //         return res.status(404).json({
+            //             status: 404,
+            //             message: 'Content not found',
+            //         });
+            //     }
+
+            //     const result = await contentCollection.deleteOne(query);
+
+            //     // Delete the file from the server
+            //     const fileName = contentData.name; // Assuming the file name is stored in the files array
+            //     const filePath = path.join(__dirname, 'uploads', fileName);
+
+            //     // Check if the file exists before attempting to delete it
+            //     const fileExists = await fs.access(filePath)
+            //         .then(() => true)
+            //         .catch(() => false);
+
+            //     if (fileExists) {
+            //         await fs.unlink(filePath);
+            //         console.log('File deleted:', fileName);
+            //     } else {
+            //         console.log('File not found:', fileName);
+            //     }
+                
+            //     res.json({
+            //         status: 200,
+            //         data: result,
+            //     });
+            // } catch (err) {
+            //     console.error('Error:', err);
+
+            //     res.status(500).json({
+            //         status: 500,
+            //         message: 'Internal Server Error',
+            //         error: err.message,
+            //     });
+            // }
         })
 
-        
+
         console.log('Connected successfully to MongoDB server');
     } catch (err) {
         console.log(err.stack);

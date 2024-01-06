@@ -119,15 +119,15 @@ const Profile = () => {
             <div className='flex justify-between items-center mt-6'>
               <div className='mb-4 text-center'>
                 <p className='font-bold text-center'>Role</p>
-                <p>{data.role}</p>
+                <p>{data.role.toUpperCase()}</p>
               </div>
               <div className='mb-4'>
                 <p className='font-bold text-center'>Subscription</p>
-                <p className='text-center'>{data.subscription}</p>
+                <p className='text-center'>{data.subscription.toUpperCase()}</p>
               </div>
               <div className='mb-4'>
                 <p className='font-bold'>Storage Used</p>
-                <p className='text-center'>{data.storage_used} MB</p>
+                <p className='text-center'>{(data.storage_used/ 1024).toFixed(2)} KB</p>
               </div>
             </div>
           </div>
